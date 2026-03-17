@@ -17,12 +17,15 @@ chrome.runtime.onMessage.addListener((message: QueryLoggedMessage) => {
   console.log('[AI Tracker] background received message:', message)
   if (message.type === 'QUERY_LOGGED') {
     getDeviceId().then(async (deviceId) => {
+      const energy_kwh = message.payload.estimatedTokens * ENERGY_PER_TOKEN_KWH
       const { error } = await supabase.from('query_logs').insert({
         device_id: deviceId,
         prompt_length: message.payload.promptLength,
         estimated_tokens: message.payload.estimatedTokens,
         model: message.payload.model,
         conversation_id: message.payload.conversationId,
+        prompt_preview: message.payload.promptPreview,
+        energy_kwh,
       })
       if (error) {
         console.error('[AI Tracker] Supabase insert failed:', error)
