@@ -7,7 +7,9 @@ export interface QueryLog {
   model: string
   conversation_id: string | null
   prompt_preview: string | null
-  energy_kwh: number | null
+  energy_wh: number | null
+  water_ml: number | null
+  carbon_grams: number | null
 }
 
 export interface QueryLoggedMessage {

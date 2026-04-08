@@ -6,7 +6,9 @@ import "./App.css";
 interface AggregateStats {
   count: number;
   totalTokens: number;
-  totalEnergyKwh: number;
+  totalEnergyWh: number;
+  totalWaterMl: number;
+  totalCarbonGrams: number;
 }
 
 function relativeTime(isoString: string): string {
@@ -19,14 +21,21 @@ function relativeTime(isoString: string): string {
   return `${Math.floor(hrs / 24)}d ago`;
 }
 
-function formatEnergy(kwh: number | null): string {
-  if (kwh == null) return "—";
-  const mwh = kwh * 1000;
-  return mwh < 1 ? `${(mwh * 1000).toFixed(2)} µWh` : `${mwh.toFixed(3)} mWh`;
+function formatEnergy(wh: number | null): string {
+  if (wh == null) return "—";
+  return wh < 1 ? `${(wh * 1000).toFixed(2)} mWh` : `${wh.toFixed(2)} Wh`;
 }
 
 function formatTokens(n: number): string {
   return n >= 1000 ? `${(n / 1000).toFixed(1)}k` : String(n);
+}
+
+function formatWater(ml: number): string {
+  return ml >= 1000 ? `${(ml / 1000).toFixed(2)} L` : `${ml.toFixed(1)} mL`;
+}
+
+function formatCarbon(g: number): string {
+  return g < 1 ? `${(g * 1000).toFixed(2)} mg` : `${g.toFixed(2)} g`;
 }
 
 export default function App() {
@@ -57,12 +66,16 @@ export default function App() {
           const row = aggResult.data[0] as {
             query_count: number;
             total_tokens: number;
-            total_energy_kwh: number;
+            total_energy_wh: number;
+            total_water_ml: number;
+            total_carbon_grams: number;
           };
           setStats({
             count: row.query_count,
             totalTokens: row.total_tokens,
-            totalEnergyKwh: row.total_energy_kwh,
+            totalEnergyWh: row.total_energy_wh,
+            totalWaterMl: row.total_water_ml,
+            totalCarbonGrams: row.total_carbon_grams,
           });
         }
 
@@ -71,8 +84,6 @@ export default function App() {
       },
     );
   }, []);
-
-  const totalCo2Mg = stats ? stats.totalEnergyKwh * 400 * 1000 : 0; // gCO2e → mg for small numbers
 
   return (
     <div className="popup">
@@ -97,16 +108,19 @@ export default function App() {
             </div>
             <div className="stat">
               <span className="stat-value">
-                {formatEnergy(stats.totalEnergyKwh)}
+                {formatEnergy(stats.totalEnergyWh)}
               </span>
-              <span className="stat-label">Energy used</span>
+              <span className="stat-label">Energy</span>
             </div>
             <div className="stat">
               <span className="stat-value">
-                {totalCo2Mg < 1000
-                  ? `${totalCo2Mg.toFixed(1)} mg`
-                  : `${(totalCo2Mg / 1000).toFixed(2)} g`}{" "}
-                CO₂e
+                {formatWater(stats.totalWaterMl)}
+              </span>
+              <span className="stat-label">Water</span>
+            </div>
+            <div className="stat">
+              <span className="stat-value">
+                {formatCarbon(stats.totalCarbonGrams)}
               </span>
               <span className="stat-label">Carbon</span>
             </div>
@@ -140,7 +154,7 @@ export default function App() {
                   <span className="query-meta-sep">·</span>
                   <span>{log.estimated_tokens.toLocaleString()} tokens</span>
                   <span className="query-meta-sep">·</span>
-                  <span>{formatEnergy(log.energy_kwh)}</span>
+                  <span>{formatEnergy(log.energy_wh)}</span>
                   <span className="query-meta-sep">·</span>
                   <span>{relativeTime(log.created_at)}</span>
                 </div>
