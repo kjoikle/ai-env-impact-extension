@@ -3,6 +3,9 @@ import { supabase } from "../lib/supabase";
 import type { QueryLog } from "../types";
 import "./App.css";
 
+const LINK_TO_METRICS =
+  "https://app.powerbi.com/view?r=eyJrIjoiZjVmOTI0MmMtY2U2Mi00ZTE2LTk2MGYtY2ZjNDMzODZkMjlmIiwidCI6IjQyNmQyYThkLTljY2QtNDI1NS04OTNkLTA2ODZhMzJjMTY4ZCIsImMiOjF9";
+
 interface AggregateStats {
   count: number;
   totalTokens: number;
@@ -89,9 +92,10 @@ export default function App() {
     <div className="popup">
       <header className="header">
         <span>🌱</span>
-        <span className="header-title">AI Environmental Tracker</span>
+        <span className="header-title">ChatGPT Environmental Tracker</span>
       </header>
 
+      {/* Aggregate Stats */}
       {!loading && stats && (
         <>
           <div className="section-header">Lifetime Stats</div>
@@ -128,6 +132,8 @@ export default function App() {
         </>
       )}
 
+      {/* Recent Queries */}
+
       {loading && <p className="empty-state">Loading…</p>}
 
       {!loading && logs.length === 0 && (
@@ -163,6 +169,13 @@ export default function App() {
           </ul>
         </>
       )}
+
+      {/* Footer */}
+      <footer className="footer">
+        <a href={LINK_TO_METRICS} target="_blank" rel="noopener noreferrer">
+          Usage Metrics Estimates Source
+        </a>
+      </footer>
     </div>
   );
 }
